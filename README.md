@@ -34,9 +34,10 @@
 - Kadane's Algorithm
 - Longest Palyndromic Sequence
 - Knapsack Problem
+- Number of ways to decode a message
 
 ## Others
 - Binary Search
-
 - Matching parenthesis
+- Count Negative Integers in Row/Column-Wise Sorted Matrix
 
