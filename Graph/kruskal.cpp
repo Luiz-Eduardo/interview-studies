@@ -1,86 +1,108 @@
-#include <stdio.h>
-#include <string>
-#include <iostream>
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#define N 200000
+#include <bits/stdc++.h>
 
-int custo;
-int father[N];
+using namespace std;
 
-struct Grafo {
-	int x, y, v;
+class Graph{
+    private:
+        int vertex;
+        int edges;
+
+    class Edge{
+        public:
+            int source;
+            int target;
+            int weight;
+    };
+
+    class Subset{
+        public:
+            int parent;
+            int rank;
+    };
+
+    int find(Subset subsets[], int i){
+        if(subsets[i].parent != i)
+            subsets[i].parent = find(subsets, subsets[i].parent);
+        return subsets[i].parent;
+    }
+
+    void Union(Subset subsets[], int a, int b){
+        int x = find(subsets, a);
+        int y = find(subsets, b);
+
+        if(subsets[x].rank < subsets[y].rank)
+            subsets[x].parent = y;
+        else if (subsets[x].rank > subsets[y].rank)  
+            subsets[y].parent = x;  
+        else {  
+            subsets[y].parent = x;  
+            subsets[x].rank++;  
+        }  
+    }
+
+    public:
+        Edge *edge;
+
+        Graph(int vertex, int edges){
+            this->vertex = vertex;
+            this->edges = edges;
+            this->edge = new Edge[edges];
+        }
+
+        void kruskal(){
+            int v = this->vertex;
+            Edge answer[v];            
+
+            sort(this->edge, this->edge + this->edges, [](Edge &a, Edge &b){
+                return a.weight < b.weight;
+            });
+
+            Subset *subsets = new Subset[ (v * sizeof(Subset)) ];
+
+            for(int i = 0; i < v; i++){
+                subsets[i].parent = i;
+                subsets[i].rank = 0;
+            }
+
+            int i = 0, e = 0;
+
+            while(e < v-1 && i < this->edges){
+                Edge next = this->edge[i++];
+
+                int x = find(subsets, next.source);
+                int y = find(subsets, next.target);
+
+                if(x != y){
+                    answer[e++] = next;
+                    Union(subsets, x, y);
+                }
+            }
+
+            cout << "Following are the edges in the constructed MST" << endl;
+            for(i = 0; i < e; i++){
+                cout << answer[i].source << " -- " << answer[i].target << " == " << answer[i].weight << endl;
+            }
+
+            return;
+        }
 };
 
-Grafo grafo[N];
-
-int cmp(const void *a, const void *b)
-{
-    return (*(struct Grafo *)a).v - (*(struct Grafo *)b).v;
-}
-
-void Makeset(int n)
-{
-    int i;
-    for (i = 0; i <= n; ++i)
-    {
-        father[i] = i;
-    }
-}
-
-int Find(int x)
-{
-    if (father[x] != x)
-    {
-        father[x] = Find(father[x]);
-    }
-    return father[x];
-}
-
-int Merge(int x, int y, int p)
-{
-    int i, j;
-    i = Find(x);
-    j = Find(y);
-    if (i != j)
-    {
-        custo -= grafo[p].v;
-        if (i > j)
-        {
-            father[i] = j;
-        }
-        else
-        {
-            father[j] = i;
-        }
-        return 1;
-    }
-    return 0;
-}
-
 int main(){
-    int m, n;
-    int i;
+    int v, e;
 
-    while(1){
-             scanf("%d %d", &m, &n);
-             if(m == 0 && n == 0) break;
-             memset(&grafo, 0, sizeof(grafo));
-             i = 0;
-             custo = 0;
-             while(i < n){
-                     scanf("%d %d %d",&grafo[i].x, &grafo[i].y, &grafo[i].v);
-                     custo += grafo[i].v;
-                     i++;
-             }
-             Makeset(m);
-             qsort(grafo, n, sizeof(grafo[0]), cmp);
-             for (i = 0; i < n; ++i)
-             {
-                 Merge(grafo[i].x, grafo[i].y, i);
-             }
-             printf("%d\n",custo);
+    cin >> v >> e;
+
+    Graph *g = new Graph(v, e);
+
+    for(int i = 0, source, target, weight; i < e; i++){
+        cin >> source >> target >> weight;
+        
+        g->edge[i].source = source;
+        g->edge[i].target = target;
+        g->edge[i].weight = weight;
     }
+
+    g->kruskal();
+   
     return 0;
 }
