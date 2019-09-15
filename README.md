@@ -36,6 +36,9 @@
 - Knapsack Problem
 - Number of ways to decode a message
 
+## Math
+- Greatest Common Divisor
+
 ## Others
 - Binary Search
 - Matching parenthesis
