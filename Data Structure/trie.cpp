@@ -4,97 +4,99 @@ using namespace std;
 
 const int ALPHABET_SIZE = 26;
 
-struct Trie{
-    struct Node{
-        Node *children[ALPHABET_SIZE];
-        bool isEndOfWorld;
+class Trie{
+    private:
+        class Node{
+            public:
+                Node *children[ALPHABET_SIZE];
+                bool isEndOfWorld;
 
-        Node(){
-            isEndOfWorld = false;
-            for (int i = 0; i < ALPHABET_SIZE; i++){
-                children[i] = NULL;
-            }
+                Node(){
+                    isEndOfWorld = false;
+                    for (int i = 0; i < ALPHABET_SIZE; i++){
+                        children[i] = NULL;
+                    }
+                }
+        };
+    public:
+        Node *root;
+
+        Trie(){
+            root = new Node();
         }
-    };
+        
+        void insert(string &s){
+            Node *current = root;
 
-    Node *root;
+            for (int i = 0; i < s.size(); i++){
+                int index = s[i] - 'a';
 
-    Trie(){
-        root = new Node();
-    }
+                if (!current->children[index]){
+                    current->children[index] = new Node();
+                }
 
-    void insert(string &s){
-        Node *current = root;
+                current = current->children[index];
+            }
 
-        for (int i = 0; i < s.size(); i++){
+            current->isEndOfWorld = true;
+        }
+
+        bool search(string &s){
+            Node *current = root;
+
+            for (int i = 0; i < s.size(); i++){
+                int index = s[i] - 'a';
+
+                if (!current->children[index]){
+                    return false;
+                }
+
+                current = current->children[index];
+            }
+
+            return (current != NULL && current->isEndOfWorld);
+        }
+
+        bool isEmpty(Node *current){
+            for(int i = 0; i < ALPHABET_SIZE; i++){
+                if(current->children[i]){
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        Node* remove(Node* root, string &s, int i = 0){
+            if(!root){
+                return NULL;
+            }
+
+            if(i == s.size()){
+                if(root->isEndOfWorld){
+                    root->isEndOfWorld = false;
+                }
+
+                if(isEmpty(root)){
+                    delete root;
+                    root = NULL;
+                }
+
+                return root;
+            }
+
             int index = s[i] - 'a';
 
-            if (!current->children[index]){
-                current->children[index] = new Node();
-            }
+            Node *current = root->children[index];
+            root->children[index] = remove(current, s, i+1);
 
-            current = current->children[index];
-        }
-
-        current->isEndOfWorld = true;
-    }
-
-    bool search(string &s){
-        Node *current = root;
-
-        for (int i = 0; i < s.size(); i++){
-            int index = s[i] - 'a';
-
-            if (!current->children[index]){
-                return false;
-            }
-
-            current = current->children[index];
-        }
-
-        return (current != NULL && current->isEndOfWorld);
-    }
-
-    bool isEmpty(Node *current){
-        for(int i = 0; i < ALPHABET_SIZE; i++){
-            if(current->children[i]){
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    Node* remove(Node* root, string &s, int i = 0){
-        if(!root){
-            return NULL;
-        }
-
-        if(i == s.size()){
-            if(root->isEndOfWorld){
-                root->isEndOfWorld = false;
-            }
-
-            if(isEmpty(root)){
+            if(isEmpty(root) && !root->isEndOfWorld){
                 delete root;
                 root = NULL;
             }
 
             return root;
         }
-
-        int index = s[i] - 'a';
-
-        Node *current = root->children[index];
-        root->children[index] = remove(current, s, i+1);
-
-        if(isEmpty(root) && !root->isEndOfWorld){
-            delete root;
-            root = NULL;
-        }
-
-        return root;
-    }
 };
 
 int main(){
@@ -132,7 +134,7 @@ int main(){
         }
 
         //Testing consistency
-        flag ? cout << "YES" << ensdl : cout << "NO" << endl;
+        flag ? cout << "YES" << endl : cout << "NO" << endl;
 
         string a = "there";
 
