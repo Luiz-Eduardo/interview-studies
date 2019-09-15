@@ -1,163 +1,146 @@
-#include <iostream>
-#include <vector>
-#include <string> 
+#include <bits/stdc++.h>
 
 using namespace std;
 
 const int ALPHABET_SIZE = 26;
 
-struct TrieNode{
-    struct TrieNode *children[ALPHABET_SIZE];
-    bool isEndOfWorld;
-};
+struct Trie{
+    struct Node{
+        Node *children[ALPHABET_SIZE];
+        bool isEndOfWorld;
 
-struct TrieNode *getNode(void){
-    struct TrieNode *Node = new TrieNode;
-
-    Node->isEndOfWorld = false;
-
-    for(int i = 0; i < ALPHABET_SIZE; i++){
-        Node->children[i] = NULL;
-    }
-
-    return Node;
-}
-
-bool isEmpty(TrieNode *root){
-    for(int i = 0; i < ALPHABET_SIZE; i++){
-        if(root->children[i]){
-            return false;
+        Node(){
+            isEndOfWorld = false;
+            for (int i = 0; i < ALPHABET_SIZE; i++){
+                children[i] = NULL;
+            }
         }
+    };
+
+    Node *root;
+
+    Trie(){
+        root = new Node();
     }
 
-    return true;
-}
+    void insert(string &s){
+        Node *current = root;
 
-void insert(struct TrieNode *root, string key){
-    struct TrieNode *temp = root;
+        for (int i = 0; i < s.size(); i++){
+            int index = s[i] - 'a';
 
-    for(int i = 0; i < key.size(); i++){
-        int index = key[i] - 'a';
-        
-        if(!temp->children[index]){
-            temp->children[index] = getNode();
+            if (!current->children[index]){
+                current->children[index] = new Node();
+            }
+
+            current = current->children[index];
         }
 
-        temp = temp->children[index];
+        current->isEndOfWorld = true;
     }
 
-    temp->isEndOfWorld = true;
-}
+    bool search(string &s){
+        Node *current = root;
 
-void insertRecursive(struct TrieNode *temp, string key, int i = 0){
-    if(i == key.size()){
-        temp->isEndOfWorld = true;
-        return;
-    }
+        for (int i = 0; i < s.size(); i++){
+            int index = s[i] - 'a';
 
-    int index = key[i] - 'a';
+            if (!current->children[index]){
+                return false;
+            }
 
-    if(!temp->children[index]){
-        temp->children[index] = getNode();
-    }
-
-    temp = temp->children[index];
-
-    insertRecursive(temp, key, i+1);
-}
-
-
-bool search(struct TrieNode *root, string key){
-    struct TrieNode *temp = root;
-
-    for(int i = 0; i < key.size(); i++){
-        int index = key[i] - 'a';
-
-        if(!temp->children[index]){
-            return false;
-        }
-        
-        temp = temp->children[index];
-    }
-
-    return (temp != NULL && temp->isEndOfWorld);
-}
-
-//TO FIX
-bool searchRecursive(struct TrieNode *temp, string key, int i = 0){
-    if(i == key.size()){
-        return (temp != NULL && temp->isEndOfWorld);
-    }
-
-    int index = key[i] - 'a';
-    
-    if(temp->children[index] == 0){
-        return false;
-    }
-        
-    temp = temp->children[index];
-
-    searchRecursive(temp, key, i+1);
-}
-
-TrieNode* remove(struct TrieNode *root, string key, int i = 0){
-    if(!root){
-        return NULL;
-    }
-
-    if(i == key.size()){
-        if(root->isEndOfWorld){
-            root->isEndOfWorld = false;
+            current = current->children[index];
         }
 
-        if(isEmpty(root)){
-            delete (root);
+        return (current != NULL && current->isEndOfWorld);
+    }
+
+    bool isEmpty(Node *current){
+        for(int i = 0; i < ALPHABET_SIZE; i++){
+            if(current->children[i]){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    Node* remove(Node* root, string &s, int i = 0){
+        if(!root){
+            return NULL;
+        }
+
+        if(i == s.size()){
+            if(root->isEndOfWorld){
+                root->isEndOfWorld = false;
+            }
+
+            if(isEmpty(root)){
+                delete root;
+                root = NULL;
+            }
+
+            return root;
+        }
+
+        int index = s[i] - 'a';
+
+        Node *current = root->children[index];
+        root->children[index] = remove(current, s, i+1);
+
+        if(isEmpty(root) && !root->isEndOfWorld){
+            delete root;
             root = NULL;
         }
 
         return root;
     }
-
-    int index = key[i] - 'a';
-    struct TrieNode *temp = root->children[index];
-    root->children[index] = remove(temp, key, i+1);
-
-    if(isEmpty(root) && !root->isEndOfWorld){
-        delete root;
-        root = NULL;
-    }
-
-    return root;
-}
+};
 
 int main(){
-    vector<string> keys;
-     
-    keys.push_back("the");
-    keys.push_back("a");
-    keys.push_back("there");
-    keys.push_back("answer");
-    keys.push_back("any");
-    keys.push_back("by");
-    keys.push_back("bye"); 
-    keys.push_back("their");
-    keys.push_back("heroplane");
-    keys.push_back("hero");
-     
-    int n = keys.size(); 
-  
-    struct TrieNode *root = getNode(); 
-  
-    // Construct trie 
-    for (int i = 0; i < n; i++) 
-        insert(root, keys[i]); 
-  
-    // Search for different keys 
-    search(root, "the") ? cout << "Yes\n" : cout << "No\n"; 
-    search(root, "these") ? cout << "Yes\n" : cout << "No\n"; 
+    int t;
 
-    search(root, "heroplane") ? cout << "Yes\n" : cout << "No\n"; 
-    remove(root, "heroplane"); 
-    search(root, "heroplane") ? cout << "Yes\n" : cout << "No\n"; 
+    cin >> t;
+
+    int n;
+
+    while (t--){
+        cin >> n;
+
+        Trie *trie = new Trie();
+        vector<string> lista(n);
+
+        for (int i = 0; i < n; i++){
+            cin >> lista[i];
+        }
+
+        sort(lista.begin(), lista.end(), [](string &a, string &b) {
+            return a.size() > b.size();
+        });
+
+        bool flag = true;
+
+        for (int i = 0; i < n; i++){
+            //Testing search
+            if (trie->search(lista[i])){
+                flag = false;
+                break;
+            }
+
+            //Testing insertion
+            trie->insert(lista[i]);
+        }
+
+        //Testing consistency
+        flag ? cout << "YES" << ensdl : cout << "NO" << endl;
+
+        string a = "there";
+
+        //Testing remotion
+        cout << "FOUND: " << trie->search(a) << endl;
+        trie->remove(trie->root, a);
+        cout << "FOUND: " <<  trie->search(a) << endl;
+    }
+
     return 0;
 }
