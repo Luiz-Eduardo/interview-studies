@@ -2,15 +2,15 @@
 
 using namespace std;
 
-struct Node {
+typedef struct Node {
     int data;
     struct Node* next;
-};
+} Node;
 
 struct Node* head;
 
 void insert(int value){
-    struct Node *temp = (Node *) malloc(sizeof(struct Node));
+    Node *temp = new Node();
     temp->data = value;
     temp->next = head;
     head = temp;
