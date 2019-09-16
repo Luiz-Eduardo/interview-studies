@@ -19,7 +19,6 @@
 
 ## Graphs
 
-- Prüfer
 - Depth First Search (DFS)
 - Breadth First Search (BFS)
 - Shortest paths - One to All - Dijkstra's algorithm 
