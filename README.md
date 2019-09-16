@@ -26,8 +26,6 @@
 - Topological Ordering
 - Strongly Connected Components - Lowpt (directed) algorithm
 - Lowest Common Ancestor (LCA)
-- Euler path - Hierholzer
-- Transitive closure - Warshall algorithm
 
 ## Dynamic Programming
 - Kadane's Algorithm
